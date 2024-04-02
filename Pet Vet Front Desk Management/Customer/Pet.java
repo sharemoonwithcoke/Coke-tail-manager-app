@@ -8,12 +8,12 @@ import java.util.List;
 public class Pet {
     private String name;
     private LocalDate birthday;
-    private List<CaseRecord> caseRecords = new ArrayList<>();
+    private List<caseRecord> caseRecords = new ArrayList<>();
     private List<Reminder> reminders = new ArrayList<>();
 
   
 
-    public void addCaseRecord(CaseRecord record) {
+    public void addCaseRecord(caseRecord record) {
         this.caseRecords.add(record);
     }
 
