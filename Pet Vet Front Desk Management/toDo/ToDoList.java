@@ -1,11 +1,7 @@
 package toDo;
 
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
 public class ToDoList {
     private static class Task {
@@ -13,12 +9,17 @@ public class ToDoList {
         boolean completed;
 
         public Task(String description) {
-            this.description = description;
+            this.description = description.trim();
             this.completed = false;
         }
 
         public void complete() {
             this.completed = true;
+        }
+        
+        @Override
+        public String toString() {
+            return description + (completed ? " (completed)" : "");
         }
     }
 
@@ -29,26 +30,33 @@ public class ToDoList {
     }
 
     public void addTask(String description) {
-        tasks.add(new Task(description));
+        if (description != null && !description.trim().isEmpty()) {
+            tasks.add(new Task(description.trim()));
+        } else {
+            System.out.println("Task description cannot be empty.");
+        }
     }
 
     public void removeTask(int index) {
         if (index >= 0 && index < tasks.size()) {
             tasks.remove(index);
+        } else {
+            System.out.println("Invalid task index.");
         }
     }
 
     public void completeTask(int index) {
         if (index >= 0 && index < tasks.size()) {
             tasks.get(index).complete();
+        } else {
+            System.out.println("Invalid task index.");
         }
     }
 
     public void displayTasks() {
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.get(i);
-            System.out.println((i + 1) + ". " + task.description + (task.completed ? " (completed)" : ""));
-        }
+        tasks.stream()
+             .map(task -> (tasks.indexOf(task) + 1) + ". " + task.toString())
+             .forEach(System.out::println);
     }
 }
 
