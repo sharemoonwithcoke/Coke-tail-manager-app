@@ -1,8 +1,8 @@
 package Customer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomerManager {
 
@@ -12,39 +12,40 @@ public class CustomerManager {
         this.customers = new ArrayList<>();
     }
 
-    
     public void addCustomer(Person customer) {
         this.customers.add(customer);
     }
 
-    // 删除客户信息
-    public boolean removeCustomer(String email) {
-        Iterator<Person> iterator = this.customers.iterator();
-        while (iterator.hasNext()) {
-            Person currentCustomer = iterator.next();
-            if (currentCustomer.getEmail().equals(email)) {
-                iterator.remove();
-                return true; // 成功找到并删除了客户
-            }
-        }
-        return false; // 未找到指定的客户
+    public Person findCustomerByCriteria(String criteria) {
+        return customers.stream()
+            .filter(customer -> customer.getEmail().equalsIgnoreCase(criteria) ||
+                               customer.getPhoneNumber().equalsIgnoreCase(criteria) ||
+                               customer.getLastName().equalsIgnoreCase(criteria) ||
+                               customer.getPets().stream().anyMatch(pet -> pet.getName().equalsIgnoreCase(criteria)))
+            .findFirst()
+            .orElse(null);
     }
 
-    // 更新客户信息
-    public boolean updateCustomer(String email, Person updatedCustomer) {
-        for (int i = 0; i < this.customers.size(); i++) {
-            if (this.customers.get(i).getEmail().equals(email)) {
-                this.customers.set(i, updatedCustomer); // 替换为更新后的客户信息
-                return true; // 成功更新了客户信息
-            }
+    public boolean updateCustomer(String criteria, Person updatedCustomer) {
+        Person customer = findCustomerByCriteria(criteria);
+        if (customer != null) {
+            int index = customers.indexOf(customer);
+            customers.set(index, updatedCustomer);
+            return true;
         }
-        return false; // 未找到指定的客户进行更新
+        return false;
     }
-    
-    // 获取所有客户列表（如果需要的话）
+
+    public boolean removeCustomer(String criteria) {
+        return customers.removeIf(customer -> customer.getEmail().equalsIgnoreCase(criteria) ||
+                                               customer.getPhoneNumber().equalsIgnoreCase(criteria) ||
+                                               customer.getLastName().equalsIgnoreCase(criteria) ||
+                                               customer.getPets().stream().anyMatch(pet -> pet.getName().equalsIgnoreCase(criteria)));
+    }
+
+   
+    // It should be updated or removed to fit the actual application logic.
     public List<Person> getAllCustomers() {
-        return this.customers;
+        return new ArrayList<>(this.customers);
     }
-
-    // 其他可能的方法：根据特定条件查找客户、获取单个客户的详细信息等。
 }
