@@ -1,19 +1,34 @@
+import java.awt.BorderLayout;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
-
 import javax.swing.*;
+import Appointment.AppointmentManager;
+import ReminderEmail.EmailService;
+import ReminderEmail.Reminder;
+import ReminderEmail.ReminderManager;
+import toDo.ToDoList;
+import Customer.CustomerManager;
+import Customer.Person;
+import Customer.Address;
+import Customer.Pet;
+import Customer.Pet.Gender;
+import Customer.Pet.PetType;
 
-import Calendar.CalendarView;
-import Calendar.ToDoListDialog;
+import java.util.List;
+import java.util.stream.Collectors;
+
+
 
 public class AppGUI {
     // 主框架和其他GUI组件
     private JFrame frame;
     private MainPage mainPage;
     private AppointmentView appointmentView;
-    private CustomerInfoView customerInfoView;
+    private CustomerinfoView customerInfoView;
     private CalendarView calendarView;
     private ToDoListDialog toDoListDialog;
-    private ReminderDialog reminderDialog;
+    private RemindersDialog reminderDialog;
     private RemaiderDetailsDialog reminderDetailsDialog;
 
     
@@ -22,6 +37,7 @@ public class AppGUI {
     private ReminderManager reminderManager;
     private ToDoList toDoList;
     private EmailService emailService;
+    private CustomerManager customerManager;
 
     public AppGUI() {
         // 初始化管理器
@@ -40,7 +56,7 @@ public class AppGUI {
         // 创建主窗口和其他视图
         mainPage = new MainPage();
         appointmentView = new AppointmentView(frame); // 假设它是一个对话框
-        customerInfoView = new CustomerInfoView(frame); // 假设它是一个对话框
+        customerInfoView = new CustomerinfoView(frame); // 假设它是一个对话框
 
         // 配置主窗口
         frame = new JFrame("Calendar Application");
@@ -65,7 +81,7 @@ public class AppGUI {
 // 显示预约视图
 private void showAppointments() {
     if (appointmentView == null) {
-        appointmentView = new AppointmentView(frame, appointmentManager);
+        appointmentView = new AppointmentView(frame);//更改！！
     }
     appointmentView.setVisible(true);
 }
@@ -73,10 +89,10 @@ private void showAppointments() {
 // 显示客户信息视图
 private void showCustomerInfo() {
     if (customerInfoView == null) {
-        customerInfoView = new CustomerInfoView(frame, customerManager); // 假设您有一个customerManager
+        customerInfoView = new CustomerinfoView(frame); // 更改！！
     }
     customerInfoView.setVisible(true);
-}
+}   
 
 // 显示待办列表对话框
 private void showToDoListDialog() {
@@ -89,7 +105,7 @@ private void showToDoListDialog() {
 // 显示提醒对话框
 private void showReminderDialog() {
     if (reminderDialog == null) {
-        reminderDialog = new ReminderDialog(frame, reminderManager);
+        reminderDialog = new RemindersDialog(frame, reminderManager, null);//更改！！
     }
     reminderDialog.setVisible(true);
 }
@@ -422,7 +438,7 @@ private void findCustomer() {
                     "Select a pet to view details:", "Pet List",
                     JOptionPane.QUESTION_MESSAGE, null, 
                     petNames, petNames[0]);
-            
+
             // 如果用户选择了一个宠物，展示宠物详情
             if (selectedPetName != null && !selectedPetName.isEmpty()) {
                 showPetDetails(customer.getPets().stream().filter(p -> p.getName().equals(selectedPetName)).findFirst().orElse(null));

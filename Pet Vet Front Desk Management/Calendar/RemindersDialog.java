@@ -1,7 +1,12 @@
 import javax.swing.*;
+
+import Customer.Pet;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import ReminderEmail.Reminder;
+import ReminderEmail.ReminderManager;
 
 public class RemindersDialog extends JDialog {
     private JFrame parent;
@@ -9,11 +14,13 @@ public class RemindersDialog extends JDialog {
     private DefaultListModel<String> reminderListModel;
     private ReminderManager reminderManager;
     private List<Reminder> reminders;
+    private List<Pet> pets;
 
-    public RemindersDialog(JFrame parent, ReminderManager reminderManager) {
+    public RemindersDialog(JFrame parent, ReminderManager reminderManager, List<Pet> pets) {
         super(parent, "Reminders", true);
         this.parent = parent;
         this.reminderManager = reminderManager;
+        this.pets = pets;
         initializeUI();
         loadReminders();
     }
@@ -42,7 +49,7 @@ public class RemindersDialog extends JDialog {
 
     private void loadReminders() {
         // 假设ReminderManager有一个方法返回所有提醒
-        reminders = reminderManager.getAllReminders();
+        reminders = reminderManager.getAllReminders(pets);
         reminderListModel.clear();
         reminders.forEach(reminder -> reminderListModel.addElement(reminder.getNote()));
     }
@@ -51,7 +58,8 @@ public class RemindersDialog extends JDialog {
         int selectedIndex = reminderList.getSelectedIndex();
         if (selectedIndex != -1) {
             Reminder selectedReminder = reminders.get(selectedIndex);
-            new ReminderDetailView(this, selectedReminder).setVisible(true);
+            new ReminderDetailView((JFrame)this.getParent(), selectedReminder).setVisible(true);
+
         }
     }
 

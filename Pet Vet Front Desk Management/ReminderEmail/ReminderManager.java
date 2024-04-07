@@ -1,15 +1,15 @@
 
 package ReminderEmail;
+
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import Customer.CustomerManager;
 import Customer.Pet;
 
-
 public class ReminderManager {
-    
+
     // 获取接下来一周内的提醒
     public List<Reminder> getUpcomingReminders(List<Pet> pets) {
         LocalDate nextWeek = LocalDate.now().plusWeeks(1);
@@ -35,14 +35,17 @@ public class ReminderManager {
         pet.addReminder(newReminder);
     }
 
-    public List<Reminder> getAllReminders() {
-        // 假设有一个方法可以获取所有宠物
-        List<Pet> allPets = getAllPets();
-        return allPets.stream()
-                      .flatMap(pet -> pet.getReminders().stream())
-                      .collect(Collectors.toList());
+    //更改地方！！！
+    public List<Reminder> getAllReminders(List<Pet> pets) {
+        return pets.stream()
+                .flatMap(pet -> pet.getReminders().stream())
+                .collect(Collectors.toList());
     }
-    
+
+    CustomerManager customerManager = new CustomerManager();
+    // Assume customers and their pets are added to customerManager here
+
+    ReminderManager reminderManager = new ReminderManager();
+    List<Reminder> reminders = reminderManager.getAllReminders(customerManager.getAllPets());
 
 }
-

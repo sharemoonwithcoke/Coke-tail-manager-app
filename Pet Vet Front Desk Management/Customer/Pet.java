@@ -139,7 +139,7 @@ public class Pet {
     public void addReminder(Reminder reminder) {
         this.reminders.add(reminder);
     }
- public boolean removeReminder(Reminder reminder) {
+    public boolean removeReminder(Reminder reminder) {
         return this.reminders.remove(reminder);
     }
 

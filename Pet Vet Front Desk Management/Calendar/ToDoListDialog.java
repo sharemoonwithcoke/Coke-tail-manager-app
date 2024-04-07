@@ -1,4 +1,9 @@
+import java.util.*;
+
 import javax.swing.*;
+
+import toDo.ToDoList;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -39,7 +44,7 @@ public class ToDoListDialog extends JDialog {
     }
 
     private void updateTaskListModel() {
-        listModel.clear();
+        listModel.clear();  
         toDoList.getTasks().forEach(task -> listModel.addElement(task.toString()));
     }
 

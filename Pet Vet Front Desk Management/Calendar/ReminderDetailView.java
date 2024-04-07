@@ -1,6 +1,12 @@
 import javax.swing.*;
+
+import ReminderEmail.Reminder;
+
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URI;
+
 
 public class ReminderDetailView extends JDialog {
     public ReminderDetailView(JFrame parent, Reminder reminder) {

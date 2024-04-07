@@ -32,6 +32,21 @@ public class MainPage extends JFrame {
         return panel;
     }
 
+    //添加了三个按钮！！！
+     // Getter methods for buttons
+     public JButton getViewAppointmentsButton() {
+        return getViewAppointmentsButton();
+    }
+
+    public JButton getAddAppointmentButton() {
+        return getAddAppointmentButton();
+    }
+
+    public JButton getViewRemindersButton() {
+        return getViewRemindersButton();
+    }
+
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             MainPage mainPage = new MainPage();

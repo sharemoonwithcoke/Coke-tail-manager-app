@@ -1,3 +1,9 @@
+import java.time.YearMonth;
+
+import Appointment.AppointmentManager;
+import ReminderEmail.ReminderManager;
+import toDo.ToDoList;
+
 public class Main {
     public static void main(String[] args) {
         // Create a new appointment manager
@@ -23,6 +29,9 @@ public class Main {
 
         // Complete a to-do item
         calendarView.interactivelyCompleteTodoItem();
+
+        // Add a new appointment
+        
     }
     
 }

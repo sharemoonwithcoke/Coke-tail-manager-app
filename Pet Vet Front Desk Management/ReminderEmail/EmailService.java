@@ -1,7 +1,6 @@
 package ReminderEmail;
 
-import javax.mail.*;
-import javax.mail.internet.*;
+import java.net.PasswordAuthentication;
 import java.util.Properties;
 
 public class EmailService {
