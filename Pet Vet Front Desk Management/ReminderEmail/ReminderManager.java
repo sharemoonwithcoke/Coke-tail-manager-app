@@ -35,5 +35,14 @@ public class ReminderManager {
         pet.addReminder(newReminder);
     }
 
+    public List<Reminder> getAllReminders() {
+        // 假设有一个方法可以获取所有宠物
+        List<Pet> allPets = getAllPets();
+        return allPets.stream()
+                      .flatMap(pet -> pet.getReminders().stream())
+                      .collect(Collectors.toList());
+    }
+    
+
 }
 

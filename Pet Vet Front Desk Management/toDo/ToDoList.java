@@ -29,6 +29,11 @@ public class ToDoList {
         this.tasks = new ArrayList<>();
     }
 
+    public List<Task> getTasks() {
+        return new ArrayList<>(tasks);
+    }
+    
+
     public void addTask(String description) {
         if (description != null && !description.trim().isEmpty()) {
             tasks.add(new Task(description.trim()));

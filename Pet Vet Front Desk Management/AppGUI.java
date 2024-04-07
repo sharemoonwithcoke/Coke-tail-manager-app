@@ -1,4 +1,9 @@
+import java.util.Calendar;
+
 import javax.swing.*;
+
+import Calendar.CalendarView;
+import Calendar.ToDoListDialog;
 
 public class AppGUI {
     // 主框架和其他GUI组件
@@ -6,6 +11,11 @@ public class AppGUI {
     private MainPage mainPage;
     private AppointmentView appointmentView;
     private CustomerInfoView customerInfoView;
+    private CalendarView calendarView;
+    private ToDoListDialog toDoListDialog;
+    private ReminderDialog reminderDialog;
+    private RemaiderDetailsDialog reminderDetailsDialog;
+
     
     // 管理类实例
     private AppointmentManager appointmentManager;
@@ -19,6 +29,8 @@ public class AppGUI {
         this.reminderManager = new ReminderManager();
         this.toDoList = new ToDoList();
         this.emailService = new EmailService();
+        this.customerManager = new CustomerManager();
+        
 
         // 初始化视图
         initializeViews();
@@ -50,11 +62,57 @@ public class AppGUI {
         // 更多的监听器可以在这里添加
     }
 
+// 显示预约视图
+private void showAppointments() {
+    if (appointmentView == null) {
+        appointmentView = new AppointmentView(frame, appointmentManager);
+    }
+    appointmentView.setVisible(true);
+}
+
+// 显示客户信息视图
+private void showCustomerInfo() {
+    if (customerInfoView == null) {
+        customerInfoView = new CustomerInfoView(frame, customerManager); // 假设您有一个customerManager
+    }
+    customerInfoView.setVisible(true);
+}
+
+// 显示待办列表对话框
+private void showToDoListDialog() {
+    if (toDoListDialog == null) {
+        toDoListDialog = new ToDoListDialog(frame, toDoList);
+    }
+    toDoListDialog.setVisible(true);
+}
+
+// 显示提醒对话框
+private void showReminderDialog() {
+    if (reminderDialog == null) {
+        reminderDialog = new ReminderDialog(frame, reminderManager);
+    }
+    reminderDialog.setVisible(true);
+}
+
+// 显示提醒详情视图
+private void showReminderDetails(Reminder reminder) {
+    reminderDetailsDialog = new ReminderDetailsDialog(frame, reminder);
+    reminderDetailsDialog.setVisible(true);
+}
+
+   
      // Display the total number of appointments
      private void showAppointmentCount() {
         int totalAppointments = appointmentManager.getAppointmentsCount();
         JOptionPane.showMessageDialog(frame, "Total Appointments: " + totalAppointments);
     }
+
+    ///display to-do list
+    private void showTodoListDialog() {
+        ToDoListDialog dialog = new ToDoListDialog(frame, toDoList);
+        dialog.setVisible(true);
+    }
+    
 
     // Add a new to-do item
     private void addTodoItem() {
@@ -86,6 +144,22 @@ public class AppGUI {
             JOptionPane.showMessageDialog(frame, reminder.toString());
         });
     }
+///add reminder
+    private void addReminder() {
+        // 提示用户输入提醒详情
+        String note = JOptionPane.showInputDialog(frame, "Enter reminder note:");
+        // 提示用户输入日期
+        String dueDateString = JOptionPane.showInputDialog(frame, "Enter due date (YYYY-MM-DD):");
+        LocalDate dueDate = LocalDate.parse(dueDateString);
+        // 提供选择宠物的方式
+        Pet selectedPet = selectPetForReminder();
+    
+        if (note != null && dueDate != null && selectedPet != null) {
+            reminderManager.addGeneralReminder(selectedPet, dueDate, note, 0); // 最后一个参数为提前天数，根据需要调整
+            JOptionPane.showMessageDialog(frame, "Reminder added successfully.");
+        }
+    }
+    
 
     // Remove a reminder
     private void removeReminder(int reminderId) {

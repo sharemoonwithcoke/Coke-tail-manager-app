@@ -48,4 +48,15 @@ public class CustomerManager {
     public List<Person> getAllCustomers() {
         return new ArrayList<>(this.customers);
     }
+
+    
+    // 获取所有宠物的方法
+    public List<Pet> getAllPets() {
+        List<Pet> allPets = new ArrayList<>();
+        for (Person customer : customers) {
+            allPets.addAll(customer.getPets()); // 将每个客户的宠物添加到列表中
+        }
+        return allPets;
+    }
 }
+

@@ -1,80 +1,100 @@
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.Scanner; // For demonstration of adding methods interactively
+import java.util.List;
 
-public class CalendarView {
+public class CalendarView extends JFrame {
     private YearMonth currentYearMonth;
-    private DateTimeFormatter dateFormatter;
-    private ToDoList todoList;
     private AppointmentManager appointmentManager;
-    private ReminderManager reminderManager;
-
-    public CalendarView(YearMonth currentYearMonth, ToDoList todoList, 
-                        AppointmentManager appointmentManager, ReminderManager reminderManager) {
+    
+    public CalendarView(YearMonth currentYearMonth, AppointmentManager appointmentManager) {
         this.currentYearMonth = currentYearMonth;
-        this.dateFormatter = DateTimeFormatter.ofPattern("MMMM yyyy");
-        this.todoList = todoList;
         this.appointmentManager = appointmentManager;
-        this.reminderManager = reminderManager;
-        updateView();
+        initUI();
     }
 
-    // 切换月份
-    public void changeMonth(YearMonth yearMonth) {
-        this.currentYearMonth = yearMonth;
-        updateView();
-    }
-
-    // 添加待办事项
-    public void interactivelyAddTodoItem() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter todo item description:");
-        String description = scanner.nextLine();
-        todoList.addTask(description);
-        updateView();
-    }
-
-    // 移除待办事项
-    public void interactivelyRemoveTodoItem() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter todo item index to remove:");
-        int index = scanner.nextInt() - 1; // User sees 1-based index
-        todoList.removeTask(index);
-        updateView();
-    }
-
-    // 标记待办事项为完成
-    public void interactivelyCompleteTodoItem() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter todo item index to complete:");
-        int index = scanner.nextInt() - 1; // User sees 1-based index
-        todoList.completeTask(index);
-        updateView();
-    }
-
-    // 更新视图
-    public void updateView() {
-        System.out.println("Calendar for " + currentYearMonth.format(dateFormatter));
+    private void initUI() {
+        setTitle("Calendar");
+        setSize(800, 600);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
     
-        // 显示预约信息
-        System.out.println("Appointments:");
-        List<Appointment> appointments = appointmentManager.getAppointmentsForMonth(currentYearMonth);
-        for (Appointment appointment : appointments) {
-            System.out.println("- " + appointment); // 假设Appointment类重写了toString方法
+        add(createCalendarPanel(), BorderLayout.CENTER);
+        add(createSidePanel(), BorderLayout.EAST); // 添加侧边栏
+    }
+    
+    private JPanel createSidePanel() {
+        JPanel sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        
+        JButton todoButton = new JButton("To-Do List");
+        todoButton.addActionListener(e -> showTodoListDialog()); // 显示待办事项视图
+        sidePanel.add(todoButton);
+        
+        JButton remindersButton = new JButton("Reminders");
+        remindersButton.addActionListener(e -> showRemindersDialog()); // 显示提醒视图
+        sidePanel.add(remindersButton);
+        
+        return sidePanel;
+    }
+    
+
+    private JPanel createCalendarPanel() {
+        JPanel calendarPanel = new JPanel(new GridLayout(0, 7, 5, 5)); // 7 days in a week
+        LocalDate start = currentYearMonth.atDay(1);
+        LocalDate end = currentYearMonth.atEndOfMonth();
+        
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            calendarPanel.add(createDayPanel(date));
         }
-    
-        // 显示待办事项
-        System.out.println("To-Do List:");
-        todoList.displayTasks();
-    
-        // 显示提醒信息
-        System.out.println("Reminders:");
-        List<Reminder> reminders = reminderManager.getRemindersForMonth(currentYearMonth);
-        for (Reminder reminder : reminders) {
-            System.out.println("- " + reminder); // 假设Reminder类重写了toString方法
+        
+        return calendarPanel;
+    }
+
+    private JPanel createDayPanel(LocalDate date) {
+        JPanel dayPanel = new JPanel();
+        dayPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        dayPanel.setLayout(new BorderLayout());
+
+        JLabel dateLabel = new JLabel(String.valueOf(date.getDayOfMonth()));
+        dayPanel.add(dateLabel, BorderLayout.NORTH);
+        
+        // 根据预约状态添加小点
+        addAppointmentStatusDots(dayPanel, date);
+        
+        return dayPanel;
+    }
+
+    private void addAppointmentStatusDots(JPanel dayPanel, LocalDate date) {
+        // 获取给定日期的所有预约
+        List<Appointment> appointmentsForDay = appointmentManager.getAppointmentsForDay(date);
+        
+        JPanel dotsPanel = new JPanel(new FlowLayout());
+        for (Appointment appointment : appointmentsForDay) {
+            JLabel dot = new JLabel("•");
+            switch (appointment.getStatus()) {
+                case PENDING:
+                    dot.setForeground(Color.BLUE);
+                    break;
+                case CANCELLED:
+                    dot.setForeground(Color.RED);
+                    break;
+                case COMPLETED:
+                    dot.setForeground(Color.GREEN);
+                    break;
+            }
+            dotsPanel.add(dot);
         }
+        dayPanel.add(dotsPanel, BorderLayout.SOUTH);
+    }
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            AppointmentManager appointmentManager = new AppointmentManager(); // 初始化你的AppointmentManager
+            CalendarView cv = new CalendarView(YearMonth.now(), appointmentManager);
+            cv.setVisible(true);
+        });
     }
 }
-    
-
