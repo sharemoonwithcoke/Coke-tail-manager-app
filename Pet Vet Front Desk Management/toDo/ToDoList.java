@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ToDoList {
-    private static class Task {
+    public static class Task {
         String description;
         boolean completed;
 

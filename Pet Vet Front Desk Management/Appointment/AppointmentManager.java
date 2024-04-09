@@ -1,5 +1,6 @@
 package Appointment;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +43,31 @@ public class AppointmentManager {
     public List<Appointment> getAppointmentsByStatus(Appointment.Status status) {
         return appointmentList.stream()
                 .filter(appointment -> appointment.getStatus() == status)
+                .collect(Collectors.toList());
+    }
+
+    //get appointment count
+    public int getAppointmentCount() {
+        return appointmentList.size();
+    }
+
+  
+
+    public List<Appointment> getAppointmentsForDay(LocalDate date) {
+        return appointmentList.stream()
+                .filter(appointment -> appointment.getDate().equals(date))
+                .collect(Collectors.toList());
+    }
+
+    // get all appointments
+    public List<Appointment> getAllAppointments() {
+        return new ArrayList<>(appointmentList);
+    }
+
+    //get appointment by date
+    public List<Appointment> getAppointmentsByDate(LocalDate date) {
+        return appointmentList.stream()
+                .filter(appointment -> appointment.getDate().equals(date))
                 .collect(Collectors.toList());
     }
 

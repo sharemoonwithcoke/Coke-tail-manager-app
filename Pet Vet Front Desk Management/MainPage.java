@@ -1,56 +1,60 @@
 import javax.swing.*;
+
+import Appointment.AppointmentManager;
+
 import java.awt.*;
 
 public class MainPage extends JFrame {
-    public MainPage() {
+    private JButton viewAppointmentsButton = new JButton("View Appointments");
+    private JButton viewTodoListButton = new JButton("View Todo List");
+    private JButton viewRemindersButton = new JButton("View Reminders");
+    private AppointmentManager appointmentManager;
+
+    public MainPage(AppointmentManager appointmentManager) {
+        this.appointmentManager = appointmentManager;
         setTitle("Main Calendar View");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel calendarPanel = createCalendarPanel(); // This will use a custom method to create the calendar view
-        JPanel sidePanel = createSidePanel(); // This panel will contain to-do list and reminders
+        JPanel calendarPanel = createCalendarPanel();
+        JPanel sidePanel = createSidePanel();
 
         add(calendarPanel, BorderLayout.CENTER);
         add(sidePanel, BorderLayout.EAST);
-
-        // Add more components and layout management according to requirements...
     }
 
+
     private JPanel createCalendarPanel() {
-        // Custom method to create the calendar part of the UI
+        // 实现日历面板
         JPanel panel = new JPanel();
-        // Layout management and component creation
         return panel;
     }
 
     private JPanel createSidePanel() {
-        // Custom method to create the side panel containing to-do list and reminders
+        // 实现包含按钮的侧边栏面板
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        // Add to-do list and reminder components
+
+        panel.add(viewAppointmentsButton);
+        panel.add(viewTodoListButton); // 将待办事项列表按钮添加到侧边栏
+        panel.add(viewRemindersButton);
+
         return panel;
     }
 
-    //添加了三个按钮！！！
-     // Getter methods for buttons
-     public JButton getViewAppointmentsButton() {
-        return getViewAppointmentsButton();
+    // 获取按钮的方法
+    public JButton getViewAppointmentsButton() {
+        return viewAppointmentsButton;
     }
 
-    public JButton getAddAppointmentButton() {
-        return getAddAppointmentButton();
+    public JButton getViewTodoListButton() { // 更改这里
+        return viewTodoListButton;
     }
 
     public JButton getViewRemindersButton() {
-        return getViewRemindersButton();
+        return viewRemindersButton;
     }
 
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            MainPage mainPage = new MainPage();
-            mainPage.setVisible(true);
-        });
-    }
+   
 }

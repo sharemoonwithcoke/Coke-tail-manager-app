@@ -1,8 +1,11 @@
 import java.awt.BorderLayout;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import javax.swing.*;
+
+import Appointment.Appointment;
 import Appointment.AppointmentManager;
 import ReminderEmail.EmailService;
 import ReminderEmail.Reminder;
@@ -26,10 +29,10 @@ public class AppGUI {
     private MainPage mainPage;
     private AppointmentView appointmentView;
     private CustomerinfoView customerInfoView;
-    private CalendarView calendarView;
+
     private ToDoListDialog toDoListDialog;
     private RemindersDialog reminderDialog;
-    private RemaiderDetailsDialog reminderDetailsDialog;
+    private ReminderDetailView reminderDetailsDialog;
 
     
     // 管理类实例
@@ -53,46 +56,97 @@ public class AppGUI {
     }
 
     private void initializeViews() {
-        // 创建主窗口和其他视图
-        mainPage = new MainPage();
-        appointmentView = new AppointmentView(frame); // 假设它是一个对话框
-        customerInfoView = new CustomerinfoView(frame); // 假设它是一个对话框
-
-        // 配置主窗口
+        // 创建主窗口
         frame = new JFrame("Calendar Application");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
-        frame.add(mainPage, BorderLayout.CENTER); // MainPage应该是一个JPanel
-
-        // 添加事件监听器
+    
+        // 实例化 MainPage 并传递必要的管理器，如果 MainPage 需要
+        mainPage = new MainPage(appointmentManager);
+        frame.add(mainPage, BorderLayout.CENTER);
+    
+        // 初始化其他视图，但不立即显示它们
+        appointmentView = new AppointmentView(frame, appointmentManager);
+        toDoListDialog = new ToDoListDialog(frame, toDoList);
+        reminderDialog = new RemindersDialog(frame, reminderManager, null); // 假设这里需要额外参数
+        // 注意：如果 CustomerInfoView 需要特定的 Person 对象，你可能需要在特定事件触发时实例化它
+    
+        // 设置并添加事件监听器
         addListeners();
     }
-
+    
+   
+    
+    // 显示预约视图的方法
+   
+    
     private void addListeners() {
-        // 示例: 为主窗口添加按钮监听器
-        mainPage.getViewAppointmentsButton().addActionListener(e -> showAppointments());
-        mainPage.getAddAppointmentButton().addActionListener(e -> addAppointment());
-        mainPage.getViewRemindersButton().addActionListener(e -> showReminders());
 
-        // 更多的监听器可以在这里添加
+        mainPage.getViewAppointmentsButton().addActionListener(e -> showAppointmentDialog());
+        mainPage.getViewTodoListButton().addActionListener(e -> showToDoListDialog());
+        mainPage.getViewRemindersButton().addActionListener(e -> showReminderDialog());
+
+
+
+
+        //预约
+        JButton openAppointmentViewButton = mainPage.getViewAppointmentsButton(); // 假设你的MainPage有这个按钮
+        if (openAppointmentViewButton != null) {
+            openAppointmentViewButton.addActionListener(e -> showAppointmentDialog());
+        }
+
+        //客户
+        // 假设这是选择了一个Person对象的事件处理器里的代码
+Person selectedPerson = getSelectedPerson(); 
+
+JButton showCustomerInfoButton = new JButton("Show Customer Info");
+showCustomerInfoButton.addActionListener(e -> showCustomerInfo(selectedPerson));
+
+// 然后你可能需要把这个按钮添加到界面中
+
+
+
+        // 待办事项
+        JButton openTodoListButton = mainPage.getViewTodoListButton(); // 假设你的MainPage有这个按钮
+        if (openTodoListButton != null) {
+            openTodoListButton.addActionListener(e -> showToDoListDialog());
+        }
+
+        // 提醒
+
+    JButton openRemindersButton = mainPage.getViewRemindersButton(); // 假设你的MainPage有这个按钮
+    if (openRemindersButton != null) {
+        openRemindersButton.addActionListener(e -> showReminderDialog());
     }
 
-// 显示预约视图
-private void showAppointments() {
+        //
+       
+    }
+
+// 显示预约视
+
+
+// 在显示预约视图
+private void showAppointmentDialog() {
     if (appointmentView == null) {
-        appointmentView = new AppointmentView(frame);//更改！！
+        // 假设你已经有了appointmentManager实例
+        appointmentView = new AppointmentView(frame, appointmentManager);
     }
     appointmentView.setVisible(true);
 }
 
+
+
 // 显示客户信息视图
-private void showCustomerInfo() {
-    if (customerInfoView == null) {
-        customerInfoView = new CustomerinfoView(frame); // 更改！！
-    }
+
+
+
+private void showCustomerInfo(Person person) {
+    CustomerinfoView customerInfoView = new CustomerinfoView(frame, person);
     customerInfoView.setVisible(true);
-}   
+}
+
 
 // 显示待办列表对话框
 private void showToDoListDialog() {
@@ -112,23 +166,37 @@ private void showReminderDialog() {
 
 // 显示提醒详情视图
 private void showReminderDetails(Reminder reminder) {
-    reminderDetailsDialog = new ReminderDetailsDialog(frame, reminder);
+    reminderDetailsDialog = new ReminderDetailView(frame, reminder);
     reminderDetailsDialog.setVisible(true);
 }
 
    
      // Display the total number of appointments
+     ///////////等下去玩
      private void showAppointmentCount() {
-        int totalAppointments = appointmentManager.getAppointmentsCount();
+        int totalAppointments = appointmentManager.getAppointmentCount();
         JOptionPane.showMessageDialog(frame, "Total Appointments: " + totalAppointments);
     }
+////////////to do list
+
+   
+
 
     ///display to-do list
     private void showTodoListDialog() {
         ToDoListDialog dialog = new ToDoListDialog(frame, toDoList);
         dialog.setVisible(true);
     }
-    
+   
+
+
+//添加选择客户
+
+
+
+
+
+
 
     // Add a new to-do item
     private void addTodoItem() {
@@ -138,13 +206,7 @@ private void showReminderDetails(Reminder reminder) {
         }
     }
 
-    // Edit a to-do item
-    private void editTodoItem(int index) {
-        String newDescription = JOptionPane.showInputDialog(frame, "Enter the new description for the to-do item:");
-        if (newDescription != null && !newDescription.trim().isEmpty()) {
-            toDoList.editTask(index, newDescription.trim());
-        }
-    }
+    
 
     // Remove a to-do item
     private void removeTodoItem(int index) {
@@ -154,32 +216,88 @@ private void showReminderDetails(Reminder reminder) {
     // Display reminders
     private void showReminders() {
         // Assuming getReminders returns a List<Reminder>
-        List<Reminder> reminders = reminderManager.getReminders();
+        List<Reminder> reminders = reminderManager.getAllReminders();
         reminders.forEach(reminder -> {
             // Assuming Reminder has a toString that formats the reminder for display
             JOptionPane.showMessageDialog(frame, reminder.toString());
         });
     }
 ///add reminder
-    private void addReminder() {
-        // 提示用户输入提醒详情
-        String note = JOptionPane.showInputDialog(frame, "Enter reminder note:");
-        // 提示用户输入日期
-        String dueDateString = JOptionPane.showInputDialog(frame, "Enter due date (YYYY-MM-DD):");
-        LocalDate dueDate = LocalDate.parse(dueDateString);
-        // 提供选择宠物的方式
-        Pet selectedPet = selectPetForReminder();
-    
-        if (note != null && dueDate != null && selectedPet != null) {
-            reminderManager.addGeneralReminder(selectedPet, dueDate, note, 0); // 最后一个参数为提前天数，根据需要调整
-            JOptionPane.showMessageDialog(frame, "Reminder added successfully.");
-        }
+  private void addReminder() {
+    // 提示用户输入提醒详情
+    String note = JOptionPane.showInputDialog(frame, "Enter reminder note:");
+    // 提示用户输入日期
+    String dueDateString = JOptionPane.showInputDialog(frame, "Enter due date (YYYY-MM-DD):");
+    LocalDate dueDate = null;
+    try {
+        dueDate = LocalDate.parse(dueDateString);
+    } catch (DateTimeParseException e) {
+        JOptionPane.showMessageDialog(frame, "Invalid date format.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
     }
+  
+
+    // 提供选择宠物的方式
+    Pet selectedPet = selectPetForReminder();
+    
+    if (note != null && dueDate != null && selectedPet != null) {
+        reminderManager.addGeneralReminder(selectedPet, dueDate, note, 0); // 最后一个参数为提前天数，根据需要调整
+        JOptionPane.showMessageDialog(frame, "Reminder added successfully.");
+    }
+}
+
+private Pet selectPetForReminder() {
+    List<Pet> allPets = customerManager.getAllPets(); // 获取所有宠物
+    Pet[] petsArray = allPets.toArray(new Pet[0]); // 转换成Pet数组以供选择
+
+    Pet selectedPet = (Pet) JOptionPane.showInputDialog(
+            frame,
+            "Choose a pet for the reminder:",
+            "Select Pet",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            petsArray,
+            petsArray[0]
+    );
+
+    return selectedPet;
+}
+
     
 
+//提供选择客户的方式
+private Person getSelectedPerson() {
+List<Person> allCustomers = customerManager.getAllCustomers(); // 获取所有客户
+Person[] customersArray = allCustomers.toArray(new Person[0]); // 转换成Person数组以供选择
+ 
+Person selectedPerson = (Person) JOptionPane.showInputDialog(
+        frame,
+        "Choose a customer for the reminder:",
+        "Select Customer",
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        customersArray,
+        customersArray[0]
+);
+
+return selectedPerson;
+}
+   
+
     // Remove a reminder
-    private void removeReminder(int reminderId) {
-        reminderManager.removeReminder(reminderId);
+    private void removeReminder() {
+        // Assuming getReminders returns a List<Reminder>
+        List<Reminder> reminders = reminderManager.getAllReminders();
+        String[] reminderStrings = reminders.stream().map(Reminder::toString).toArray(String[]::new);
+        String selectedReminder = (String) JOptionPane.showInputDialog(frame, "Select a reminder to remove:", "Remove Reminder",
+                JOptionPane.QUESTION_MESSAGE, null, reminderStrings, reminderStrings[0]);
+        if (selectedReminder != null) {
+            Reminder reminder = reminders.stream().filter(r -> r.toString().equals(selectedReminder)).findFirst().orElse(null);
+            if (reminder != null) {
+                reminderManager.removeReminder(reminder);
+                JOptionPane.showMessageDialog(frame, "Reminder removed successfully.");
+            }
+        }
     }
 
 
@@ -450,6 +568,16 @@ private void findCustomer() {
 }
 private void showPetDetails(Pet pet) {
     if (pet != null) {
+        // 提取提醒信息
+        String remindersInfo = pet.getReminders().stream()
+            .map(reminder -> reminder.getDueDate().toString() + ": " + reminder.getNote())
+            .collect(Collectors.joining(", "));
+
+        // 提取病例记录信息
+        String caseHistoryInfo = pet.getCaseRecords().stream()
+            .map(caseRecord -> caseRecord.getDate().toString() + ": " + caseRecord.getDescription())
+            .collect(Collectors.joining(", "));
+
         // 定义表格数据
         String[][] data = {
             {"Name", pet.getName()},
@@ -457,18 +585,12 @@ private void showPetDetails(Pet pet) {
             {"Gender", pet.getGender().toString()},
             {"Type", pet.getType().toString()},
             {"Breed", pet.getBreed()},
-            // 结合提醒的到期日期和注释
-            {"Reminders", pet.getReminders().stream()
-                .map(reminder -> reminder.getDueDate().toString() + ": " + reminder.getNote())
-                .collect(Collectors.joining(", "))},
-            // 结合病例记录的日期和描述
-            {"Case History", pet.getCaseRecords().stream()
-                .map(caseRecord -> caseRecord.getDate().toString() + ": " + caseRecord.getDescription())
-                .collect(Collectors.joining(", "))}
+            {"Reminders", remindersInfo},
+            {"Case History", caseHistoryInfo}
         };
-        
+
         String[] columnNames = {"Attribute", "Value"};
-        
+
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
@@ -477,6 +599,7 @@ private void showPetDetails(Pet pet) {
         JOptionPane.showMessageDialog(null, scrollPane, "Pet Details", JOptionPane.INFORMATION_MESSAGE);
     }
 }
+
 
 
 // 显示所有客户的数量

@@ -2,6 +2,7 @@
 package ReminderEmail;
 
 import java.time.LocalDate;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,9 @@ public class ReminderManager {
         pet.addReminder(newReminder);
     }
 
+
+    
+    
     //更改地方！！！
     public List<Reminder> getAllReminders(List<Pet> pets) {
         return pets.stream()
@@ -47,5 +51,25 @@ public class ReminderManager {
 
     ReminderManager reminderManager = new ReminderManager();
     List<Reminder> reminders = reminderManager.getAllReminders(customerManager.getAllPets());
+    public List<Reminder> getAllReminders() {
+        List<Pet> allPets = customerManager.getAllPets(); // 假设这个方法返回所有客户的所有宠物
+        return allPets.stream()
+                      .flatMap(pet -> pet.getReminders().stream())
+                      .collect(Collectors.toList());
+    }
+    
+
+    public void removeReminder(Reminder reminder) {
+        List<Pet> allPets = customerManager.getAllPets(); // 获取所有宠物
+        for (Pet pet : allPets) {
+            if (pet.getReminders().contains(reminder)) {
+                pet.removeReminder(reminder); // 移除找到的提醒
+                break; // 假设每个提醒只属于一个宠物，找到后即可停止搜索
+            }
+        }
+    }
+
+  
+    
 
 }

@@ -58,5 +58,17 @@ public class CustomerManager {
         }
         return allPets;
     }
+
+    // 获取所有人的方法
+    public static List<Person> getAllPersons() {
+        List<Person> customers = new ArrayList<>();
+        // Add logic to get all persons
+        for (Person customer : customers) {
+            customers.add(customer);
+        }
+        return customers;
+    }
+
+    
 }
 

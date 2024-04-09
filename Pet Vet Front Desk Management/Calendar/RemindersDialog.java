@@ -4,6 +4,7 @@ import Customer.Pet;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDate;
 import java.util.List;
 import ReminderEmail.Reminder;
 import ReminderEmail.ReminderManager;
@@ -36,9 +37,10 @@ public class RemindersDialog extends JDialog {
 
         JButton viewDetailButton = new JButton("View Detail");
         JButton dismissButton = new JButton("Dismiss");
+        JButton addReminderButton = new JButton("Add Reminder");
 
         viewDetailButton.addActionListener(e -> viewReminderDetail());
-        dismissButton.addActionListener(e -> dismissReminder());
+        dismissButton.addActionListener(e -> removeReminder());
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(viewDetailButton);
@@ -63,14 +65,22 @@ public class RemindersDialog extends JDialog {
         }
     }
 
-    private void dismissReminder() {
+    private void addReminder() {
+        // 假设ReminderManager有方法添加提醒
+        reminderManager.addGeneralReminder(pets.get(0), LocalDate.now().plusDays(7), "Reminder", 7);
+        loadReminders(); // 重新加载提醒列表
+    }
+
+private void removeReminder() {
         int selectedIndex = reminderList.getSelectedIndex();
         if (selectedIndex != -1) {
-            // 假设ReminderManager有方法根据索引解除提醒
-            reminderManager.dismissReminder(reminders.get(selectedIndex));
+            // 假设ReminderManager有方法根据索引删除提醒
+            reminderManager.removeReminder(reminders.get(selectedIndex));
             loadReminders(); // 重新加载提醒列表
         }
     }
+
+   
 
     public void showDialog() {
         setLocationRelativeTo(parent);
