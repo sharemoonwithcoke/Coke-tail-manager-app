@@ -45,19 +45,12 @@ public class AppointmentView extends JDialog {
         cancelButton = new JButton("Cancel");
         completeButton = new JButton("Complete");
         modifyButton = new JButton("Modify");
+        
 
 
         // 添加按钮事件监听器
 
-        appointmentList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                Appointment selectedAppointment = appointmentList.getSelectedValue();
-                if (selectedAppointment != null) {
-                    Person client = selectedAppointment.getPerson();
-                    openClientView(client);
-                }
-            }
-        });
+       
         
 
         addButton.addActionListener(e -> addAppointment());
@@ -129,7 +122,21 @@ private void addAppointment() {
         return;
     }
 
-    Appointment.Doctor doctor = Appointment.Doctor.DR_A; // 这里简化处理，实际可以让用户选择
+    // 用户选择医生
+    Appointment.Doctor[] doctors = Appointment.Doctor.values();
+    Appointment.Doctor doctor = (Appointment.Doctor) JOptionPane.showInputDialog(
+            this,
+            "选择医生:",
+            "选择医生",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            doctors,
+            doctors[0]);
+
+    if (doctor == null) { // 如果用户没有选择医生（例如，他们点击了取消）
+        JOptionPane.showMessageDialog(this, "没有选择医生。");
+        return;
+    }
 
     if (!reason.isEmpty()) {
         Appointment appointment = new Appointment(date, person, pet, time, reason, doctor);
@@ -143,10 +150,8 @@ private void addAppointment() {
 }
 
 
-private void openClientView(Person person) {
-    CustomerinfoView clientView = new CustomerinfoView(this.parent, person);
-    clientView.setVisible(true);
-}
+
+
 
 
 private Person selectPerson() {
@@ -189,22 +194,33 @@ private Person selectPerson() {
     }
     
 
-private void cancelAppointment(long appointmentId) {
-    if (appointmentManager.cancelAppointment(appointmentId)) {
-        JOptionPane.showMessageDialog(this, "预约已取消。");
-    } else {
-        JOptionPane.showMessageDialog(this, "取消预约失败。");
+
+
+
+   
+
+    private void cancelAppointment(long appointmentId) {
+        if (appointmentManager.cancelAppointment(appointmentId)) {
+            JOptionPane.showMessageDialog(this, "预约已取消。", "操作成功", JOptionPane.INFORMATION_MESSAGE);
+            updateAppointmentList(); // 刷新预约列表以显示状态更新
+        } else {
+            JOptionPane.showMessageDialog(this, "取消预约失败或预约已经不处于待处理状态。", "操作失败", JOptionPane.ERROR_MESSAGE);
+        }
     }
-    // 可能需要刷新视图
-}
+    
+
+
+
 private void completeAppointment(long appointmentId) {
     if (appointmentManager.completeAppointment(appointmentId)) {
-        JOptionPane.showMessageDialog(this, "预约已完成。");
+        JOptionPane.showMessageDialog(this, "预约已完成。", "操作成功", JOptionPane.INFORMATION_MESSAGE);
+        updateAppointmentList(); // 同样，刷新预约列表
     } else {
-        JOptionPane.showMessageDialog(this, "完成预约失败。");
+        JOptionPane.showMessageDialog(this, "完成预约失败或预约已经不处于待处理状态。", "操作失败", JOptionPane.ERROR_MESSAGE);
     }
-    // 可能需要刷新视图
 }
+
+
 private void modifyAppointment(long appointmentId) {
     // 查找并获取预约
     Appointment appointment = appointmentManager.getAppointmentsByStatus(Appointment.Status.PENDING)
@@ -212,16 +228,47 @@ private void modifyAppointment(long appointmentId) {
             .filter(a -> a.getAppointmentId() == appointmentId)
             .findFirst()
             .orElse(null);
-    if (appointment != null) {
-        // 示例：修改预约时间，实际应从用户输入获取新的时间
-        LocalTime newTime = LocalTime.of(14, 0);
-        appointment.setTime(newTime);
-        JOptionPane.showMessageDialog(this, "预约时间已更新。");
-        // 可能需要刷新视图
-    } else {
+
+    if (appointment == null) {
         JOptionPane.showMessageDialog(this, "找不到指定的预约。");
+        return;
     }
+
+    // 修改日期
+    String newDateStr = JOptionPane.showInputDialog(this, "修改日期 (YYYY-MM-DD)，跳过请直接按Enter：", appointment.getDate().toString());
+    LocalDate newDate = newDateStr.isEmpty() ? appointment.getDate() : LocalDate.parse(newDateStr);
+
+    // 修改时间
+    String newTimeStr = JOptionPane.showInputDialog(this, "修改时间 (HH:MM)，跳过请直接按Enter：", appointment.getTime().toString());
+    LocalTime newTime = newTimeStr.isEmpty() ? appointment.getTime() : LocalTime.parse(newTimeStr);
+
+    // 修改原因
+    String newReason = JOptionPane.showInputDialog(this, "修改原因，跳过请直接按Enter：", appointment.getReason());
+    newReason = newReason.isEmpty() ? appointment.getReason() : newReason;
+
+    // 修改医生
+    Appointment.Doctor[] doctors = Appointment.Doctor.values();
+    Appointment.Doctor newDoctor = (Appointment.Doctor) JOptionPane.showInputDialog(
+            this,
+            "选择医生，跳过请直接按Enter：",
+            "选择医生",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            doctors,
+            appointment.getDoctor());
+    newDoctor = newDoctor == null ? appointment.getDoctor() : newDoctor;
+
+    // 更新预约信息
+    appointment.setDate(newDate);
+    appointment.setTime(newTime);
+    appointment.setReason(newReason);
+    appointment.setDoctor(newDoctor);
+
+    JOptionPane.showMessageDialog(this, "预约信息已更新。");
+    // 可能需要刷新视图
+    updateAppointmentList();
 }
+
 
 
    
@@ -242,4 +289,5 @@ private void modifyAppointment(long appointmentId) {
             }
         }
     
-}
+    
+    }

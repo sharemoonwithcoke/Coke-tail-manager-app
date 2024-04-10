@@ -77,5 +77,7 @@ public class AppointmentManager {
                 .filter(appointment -> appointment.getDate().equals(date))
                 .collect(Collectors.toList());
     }
+  
+
 
 }

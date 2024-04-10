@@ -20,7 +20,7 @@ public class Appointment {
     
 
     public enum Status { PENDING, CANCELLED, COMPLETED }
-    public enum Doctor { DR_A, DR_B, DR_C, DR_D, DR_E }
+    public enum Doctor { Clair, Michell, Jay, Alex, Cam }
 
     public Appointment(LocalDate date, Person person, Pet pet, LocalTime time, String reason, Doctor doctor) {
         this.appointmentId = ++appointmentCounter;
@@ -144,13 +144,26 @@ public class Appointment {
 
 
     @Override
-    public String toString() {
-        // 假设person和pet类有getName()或相似方法来获取显示名称
-        String personName = person != null ? person.getLastName() : "Unknown";
-        String petName = pet != null ? pet.getName() : "Unknown";
-        // 格式化字符串以便于阅读
-        return String.format("%s: %s with %s - %s, %s (%s)", date, time, personName, petName, reason, doctor);
+public String toString() {
+    // 基本信息
+    String info = String.format("%s: %s with %s - %s, %s (%s)", date, time, person != null ? person.getLastName() : "Unknown",
+                                pet != null ? pet.getName() : "Unknown", reason, doctor);
+
+    // 根据状态添加标签
+    switch (status) {
+        case CANCELLED:
+            info += " (cancelled)";
+            break;
+        case COMPLETED:
+            info += " (completed)";
+            break;
+        case PENDING:
+        default:
+            // 不需要额外添加文字
+            break;
     }
-    
+    return info;
+}
+
 }
 
