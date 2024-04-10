@@ -12,29 +12,30 @@ import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class AppointmentView extends JDialog {
     private JFrame parent;
     private JList<Appointment> appointmentList;
     private DefaultListModel<Appointment> appointmentListModel;
-    private JButton addButton;
-    private JButton cancelButton;
-    private JButton completeButton;
-    private JButton modifyButton;
-
+    private JButton addButton, cancelButton, completeButton, modifyButton;
     private AppointmentManager appointmentManager;
+    private CustomerManager customerManager; // 新增
 
-    public AppointmentView(JFrame parent, AppointmentManager appointmentManager) {
+    public AppointmentView(JFrame parent, AppointmentManager appointmentManager, CustomerManager customerManager, LocalDate date) {
         super(parent, "Appointment Management", true);
         this.parent = parent;
         this.appointmentManager = appointmentManager;
-        
+        this.customerManager = customerManager; 
+
         setSize(500, 400);
         setLayout(new BorderLayout());
 
+        // 初始化组件
         appointmentListModel = new DefaultListModel<>();
         appointmentList = new JList<>(appointmentListModel);
-        updateAppointmentList();
+        // 根据提供的日期更新预约列表
+        updateAppointmentListForDate(date);
 
         JScrollPane scrollPane = new JScrollPane(appointmentList);
         add(scrollPane, BorderLayout.CENTER);
@@ -101,28 +102,75 @@ public class AppointmentView extends JDialog {
 
 // 添加以下方法
 
+private void addAppointment() {
+    Person person = selectPerson();
+    if (person == null) {
+        JOptionPane.showMessageDialog(this, "没有选择人物。");
+        return;
+    }
+
+    Pet pet = selectPet(person);
+    if (pet == null) {
+        JOptionPane.showMessageDialog(this, "没有选择宠物。");
+        return;
+    }
+
+    String dateStr = JOptionPane.showInputDialog(this, "请输入日期 (YYYY-MM-DD):");
+    String timeStr = JOptionPane.showInputDialog(this, "请输入时间 (HH:MM):");
+    String reason = JOptionPane.showInputDialog(this, "请输入预约原因:");
+    LocalDate date;
+    LocalTime time;
+
+    try {
+        date = LocalDate.parse(dateStr);
+        time = LocalTime.parse(timeStr);
+    } catch (DateTimeParseException e) {
+        JOptionPane.showMessageDialog(this, "日期或时间格式错误。");
+        return;
+    }
+
+    Appointment.Doctor doctor = Appointment.Doctor.DR_A; // 这里简化处理，实际可以让用户选择
+
+    if (!reason.isEmpty()) {
+        Appointment appointment = new Appointment(date, person, pet, time, reason, doctor);
+        appointmentManager.addAppointment(appointment);
+        JOptionPane.showMessageDialog(this, "预约已添加。");
+        // 在这里调用更新列表的方法
+        updateAppointmentListForDate(date); // 或 updateAppointmentList();
+    } else {
+        JOptionPane.showMessageDialog(this, "输入信息不完整。");
+    }
+}
+
+
 private void openClientView(Person person) {
     CustomerinfoView clientView = new CustomerinfoView(this.parent, person);
     clientView.setVisible(true);
 }
 
 
+private Person selectPerson() {
+    List<Person> persons = this.customerManager.getAllCustomers(); // 修改调用方式
+    Person[] personArray = persons.toArray(new Person[0]);
 
-    private Person selectPerson() {
-        List<Person> persons = CustomerManager.getAllPersons();
-        Person[] personArray = persons.toArray(new Person[0]);
-        
-        Person selectedPerson = (Person)JOptionPane.showInputDialog(
-                this,
-                "请选择客户:",
-                "选择客户",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                personArray,
-                personArray[0]);
-        
-        return selectedPerson;
+    if (personArray.length == 0) {
+        JOptionPane.showMessageDialog(this, "没有可选的客户。");
+        return null; // 如果没有客户可选，提前返回
     }
+
+    Person selectedPerson = (Person)JOptionPane.showInputDialog(
+            this,
+            "请选择客户:",
+            "选择客户",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            personArray,
+            personArray[0]);
+
+    JOptionPane.showMessageDialog(this, "选择的客户: " + (selectedPerson != null ? selectedPerson.getLastName() : "无"));
+    return selectedPerson;
+}
+
     private Pet selectPet(Person person) {
         List<Pet> pets = person.getPets();
         Pet[] petArray = pets.toArray(new Pet[0]);
@@ -135,38 +183,11 @@ private void openClientView(Person person) {
                 null,
                 petArray,
                 petArray[0]);
-        
+               
+                JOptionPane.showMessageDialog(this, "选择的宠物: " + (selectedPet != null ? selectedPet.getName() : "无"));
         return selectedPet;
     }
     
-    private void addAppointment() {
-    // 假设您有一个获取Person和Pet对象的方法
-    Person person = selectPerson(); // 选择Person
-    if (person == null) {
-        JOptionPane.showMessageDialog(this, "没有选择人物。");
-        return;
-    }
-    Pet pet = selectPet(person); // 基于选中的Person选择Pet
-    if (pet == null) {
-        JOptionPane.showMessageDialog(this, "没有选择宠物。");
-        return;
-    }
-    String dateStr = JOptionPane.showInputDialog(this, "请输入日期 (YYYY-MM-DD):");
-    String timeStr = JOptionPane.showInputDialog(this, "请输入时间 (HH:MM):");
-    String reason = JOptionPane.showInputDialog(this, "请输入预约原因:");
-    LocalDate date = LocalDate.parse(dateStr);
-    LocalTime time = LocalTime.parse(timeStr);
-    Appointment.Doctor doctor = Appointment.Doctor.DR_A; // 这里简化处理，实际可以让用户选择
-
-    if (person != null && pet != null && date != null && time != null && reason != null && !reason.isEmpty()) {
-        Appointment appointment = new Appointment(date, person, pet, time, reason, doctor);
-        appointmentManager.addAppointment(appointment);
-        JOptionPane.showMessageDialog(this, "预约已添加。");
-    } else {
-        JOptionPane.showMessageDialog(this, "输入信息不完整。");
-    }
-}
-
 
 private void cancelAppointment(long appointmentId) {
     if (appointmentManager.cancelAppointment(appointmentId)) {
@@ -211,4 +232,14 @@ private void modifyAppointment(long appointmentId) {
             appointmentListModel.addElement(appointment);
         }
     }
+
+        // 根据日期更新预约列表的新方法
+        private void updateAppointmentListForDate(LocalDate date) {
+            appointmentListModel.clear();
+            List<Appointment> appointments = appointmentManager.getAppointmentsForDate(date);
+            for (Appointment appointment : appointments) {
+                appointmentListModel.addElement(appointment);
+            }
+        }
+    
 }

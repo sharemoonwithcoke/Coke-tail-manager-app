@@ -43,5 +43,10 @@ public class Person {
     public List<Pet> getPets() {
         return pets;
     }
-    
+    //to string
+    @Override
+public String toString() {
+    return firstName + " " + lastName + " (" + email + ")";
+}
+
 }

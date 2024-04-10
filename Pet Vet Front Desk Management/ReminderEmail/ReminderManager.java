@@ -49,14 +49,7 @@ public class ReminderManager {
     CustomerManager customerManager = new CustomerManager();
     // Assume customers and their pets are added to customerManager here
 
-    ReminderManager reminderManager = new ReminderManager();
-    List<Reminder> reminders = reminderManager.getAllReminders(customerManager.getAllPets());
-    public List<Reminder> getAllReminders() {
-        List<Pet> allPets = customerManager.getAllPets(); // 假设这个方法返回所有客户的所有宠物
-        return allPets.stream()
-                      .flatMap(pet -> pet.getReminders().stream())
-                      .collect(Collectors.toList());
-    }
+   
     
 
     public void removeReminder(Reminder reminder) {

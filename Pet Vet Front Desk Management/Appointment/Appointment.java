@@ -143,19 +143,14 @@ public class Appointment {
 
 
 
-    // toString 
     @Override
     public String toString() {
-        return "Appointment{" +
-                "appointmentId=" + appointmentId +
-                ", date=" + date +
-                ", person=" + person +
-                ", pet=" + pet +
-                ", time=" + time +
-                ", reason='" + reason + '\'' +
-                ", status=" + status +
-                ", doctor=" + doctor +
-                '}';
+        // 假设person和pet类有getName()或相似方法来获取显示名称
+        String personName = person != null ? person.getLastName() : "Unknown";
+        String petName = pet != null ? pet.getName() : "Unknown";
+        // 格式化字符串以便于阅读
+        return String.format("%s: %s with %s - %s, %s (%s)", date, time, personName, petName, reason, doctor);
     }
+    
 }
 

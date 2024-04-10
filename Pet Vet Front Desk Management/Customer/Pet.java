@@ -147,6 +147,11 @@ public class Pet {
     public List<Reminder> getAllReminders() {
         return new ArrayList<>(this.reminders);
     }
+    @Override
+public String toString() {
+    return name + " [" + type.toString() + "]";
+}
+
 }
     
 

@@ -46,6 +46,13 @@ public class AppointmentManager {
                 .collect(Collectors.toList());
     }
 
+    //get all appointments by date
+    public List<Appointment> getAppointmentsForDate(LocalDate date) {
+        return appointmentList.stream()
+                .filter(appointment -> appointment.getDate().equals(date))
+                .collect(Collectors.toList());
+    }
+
     //get appointment count
     public int getAppointmentCount() {
         return appointmentList.size();

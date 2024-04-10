@@ -12,9 +12,9 @@ public class ToDoListDialog extends JDialog {
     private JList<String> taskList;
     private ToDoList toDoList;
 
-    public ToDoListDialog(JFrame parent, ToDoList toDoList) {
+    public ToDoListDialog(JFrame parent, ToDoList toDoList2) {
         super(parent, "To-Do List", true);
-        this.toDoList = toDoList;
+        this.toDoList = toDoList2;
         initializeUI();
     }
 

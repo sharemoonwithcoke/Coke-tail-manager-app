@@ -60,14 +60,11 @@ public class CustomerManager {
     }
 
     // 获取所有人的方法
-    public static List<Person> getAllPersons() {
-        List<Person> customers = new ArrayList<>();
-        // Add logic to get all persons
-        for (Person customer : customers) {
-            customers.add(customer);
-        }
-        return customers;
+    public List<Person> getAllPersons() {
+        return new ArrayList<>(this.customers);
     }
+    
+    
 
     
 }

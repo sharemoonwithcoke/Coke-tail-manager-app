@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 import Customer.Address;
 import Customer.CustomerManager;
@@ -27,12 +28,26 @@ public class CustomerinfoView extends JDialog {
     private JButton removeButton;
     private JButton findButton;
     private JButton countButton;
+    private JTable customerTable;
+private DefaultTableModel tableModel;
+
+private void initializeTable() {
+    String[] columnNames = {"First Name", "Last Name", "Phone Number", "Email"}; // 定义列名
+    tableModel = new DefaultTableModel(columnNames, 0);
+    customerTable = new JTable(tableModel);
+
+    JScrollPane scrollPane = new JScrollPane(customerTable); // 使表格可滚动
+    add(scrollPane, BorderLayout.CENTER); // 添加到中央布局
+
+    refreshCustomerTable(); // 初始刷新表格
+}
 
 
-    public CustomerinfoView(JFrame parent,Person person) {
+
+    public CustomerinfoView(JFrame parent, CustomerManager customerManager) {
         super(parent, "Customer Information", true);
         this.parent = parent;
-        this.customerManager = new CustomerManager();
+        this.customerManager = customerManager; 
     
         setSize(500, 300);
         setLayout(new BorderLayout());
@@ -60,6 +75,8 @@ public class CustomerinfoView extends JDialog {
         buttonPanel.add(findButton);
         buttonPanel.add(countButton);
         add(buttonPanel, BorderLayout.SOUTH);
+
+        initializeTable();
     }
     
 
@@ -69,35 +86,49 @@ public class CustomerinfoView extends JDialog {
 
    // 增加新客户信息
    private void addCustomer() {
-    // 从用户获取客户信息
     String firstName = JOptionPane.showInputDialog(this, "Enter customer's first name:");
     String lastName = JOptionPane.showInputDialog(this, "Enter customer's last name:");
     String phoneNumber = JOptionPane.showInputDialog(this, "Enter customer's phone number:");
     String email = JOptionPane.showInputDialog(this, "Enter customer's email:");
+
+    if (firstName == null || lastName == null || phoneNumber == null || email == null ||
+        firstName.trim().isEmpty() || lastName.trim().isEmpty() || phoneNumber.trim().isEmpty() || email.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Customer information is incomplete.");
+        return;
+    }
     
-    // 假设Address类有一个合适的构造器或者一个输入对话框来创建Address对象
     Address address = createAddressDialog();
-    
-    // 收集宠物信息
+    if (address == null) {
+        JOptionPane.showMessageDialog(this, "Address information is required.");
+        return;
+    }
+
     List<Pet> pets = new ArrayList<>();
-    int addMore = JOptionPane.showConfirmDialog(this, "Do you want to add pet information?", "Add Pet", JOptionPane.YES_NO_OPTION);
-    while (addMore == JOptionPane.YES_OPTION) {
-        Pet pet = createPetDialog();
-        if (pet != null) {
+    boolean addingPets = true;
+    while (addingPets) {
+        int addMore = JOptionPane.showConfirmDialog(this, "Do you want to add pet information?", "Add Pet", JOptionPane.YES_NO_OPTION);
+        if (addMore == JOptionPane.YES_OPTION) {
+            Pet pet = createPetDialog();
+            if (pet == null) { // User canceled the pet dialog
+                int continueAdding = JOptionPane.showConfirmDialog(this, "Pet information is incomplete. Do you want to continue without adding pet?", "Continue?", JOptionPane.YES_NO_OPTION);
+                if (continueAdding == JOptionPane.NO_OPTION) {
+                    return; // Stop the whole add process
+                }
+                break; // Exit pet adding loop
+            }
             pets.add(pet);
+        } else {
+            addingPets = false; // Stop asking for more pets
         }
-        addMore = JOptionPane.showConfirmDialog(this, "Do you want to add more pet information?", "Add More Pets", JOptionPane.YES_NO_OPTION);
     }
-    
-    // 创建并添加新的Person实例到CustomerManager
-    if (email != null && !email.trim().isEmpty()) {
-        Person newCustomer = new Person(firstName, lastName, phoneNumber, address, email, pets);
-        customerManager.addCustomer(newCustomer);
-        JOptionPane.showMessageDialog(this, "Customer added successfully.");
-    } else {
-        JOptionPane.showMessageDialog(this, "Customer addition cancelled or invalid input.");
-    }
+
+    // Proceed to create and add the customer
+    Person newCustomer = new Person(firstName, lastName, phoneNumber, address, email, pets);
+    customerManager.addCustomer(newCustomer);
+    JOptionPane.showMessageDialog(this, "Customer added successfully.");
+    refreshCustomerTable();
 }
+
 private Pet createPetDialog() {
     JTextField nameField = new JTextField();
     JTextField birthdayField = new JTextField();
@@ -132,6 +163,7 @@ private Pet createPetDialog() {
         System.out.println("User canceled or closed the dialog.");
         return null;
     }
+  
 }
 
 private Address createAddressDialog() {
@@ -371,6 +403,21 @@ private void showAllCustomersCount() {
     List<Person> allCustomers = customerManager.getAllCustomers();
     JOptionPane.showMessageDialog(this, "Total number of customers: " + allCustomers.size());
 }
+
+private void refreshCustomerTable() {
+    tableModel.setRowCount(0); // 清空表格现有数据
+    List<Person> customers = customerManager.getAllCustomers(); // 获取所有客户
+    for (Person customer : customers) {
+        Object[] row = new Object[]{
+            customer.getFirstName(),
+            customer.getLastName(),
+            customer.getPhoneNumber(),
+            customer.getEmail()
+        };
+        tableModel.addRow(row); // 向表格模型中添加行
+    }
+}
+
 }
 
 
