@@ -2,13 +2,22 @@ package ReminderEmail;
 
 import java.net.PasswordAuthentication;
 import java.util.Properties;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.Message;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.management.MBeanException;
+
+
 
 public class EmailService {
 
-    public static void sendEmail(String recipient, String subject, String content) throws MessagingException {
-        String host = "smtp.example.com"; // SMTP服务器地址
-        final String username = "your-username@example.com"; // 邮箱用户名
-        final String password = "your-password"; // 邮箱密码
+    public static void sendEmail(String recipient, String subject, String content) throws MBeanException {
+        String host = "smtp.example.com"; 
+        final String username = "your-username@example.com"; 
+        final String password = "your-password"; 
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

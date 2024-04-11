@@ -74,41 +74,63 @@ public class MainPage extends JFrame {
     }
 
     
+        
+
     private JPanel createCalendarPanel() {
         calendarPanel.removeAll();
-        calendarPanel.setLayout(new GridLayout(0, 7)); // Resetting the layout for the calendar panel
-
+        calendarPanel.setLayout(new GridLayout(0, 7)); // 保留原有的7列网格布局
+    
+        // 设置日历头部的样式
+        String[] weekDays = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+        for (String day : weekDays) {
+            JLabel dayLabel = new JLabel(day, SwingConstants.CENTER);
+            dayLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            dayLabel.setBackground(Color.GRAY); // 设置背景颜色
+            dayLabel.setOpaque(true);
+            dayLabel.setFont(new Font("Arial", Font.BOLD, 12));
+            calendarPanel.add(dayLabel);
+        }
+    
+        LocalDate today = LocalDate.now();
         LocalDate startDate = currentMonth.atDay(1);
         int dayOfWeekOfFirstDay = startDate.getDayOfWeek().getValue() % 7;
-
-        // Fill empty for days before the first day of the month
+        dayOfWeekOfFirstDay = dayOfWeekOfFirstDay == 0 ? 6 : dayOfWeekOfFirstDay - 1;
+    
+        // 在第一天之前填充空标签以对齐日期
         for (int i = 0; i < dayOfWeekOfFirstDay; i++) {
             calendarPanel.add(new JLabel(""));
         }
-
-        // Add buttons for each day
+    
+        // 添加每一天的按钮
         for (int day = 1; day <= currentMonth.lengthOfMonth(); day++) {
-            final int finalDay = day; // 使变量在内部类/lambda表达式中可以被使用
+            final int finalDay = day;
             JButton dayButton = new JButton(Integer.toString(day));
+            dayButton.setFont(new Font("Arial", Font.PLAIN, 11));
+            if (LocalDate.of(currentMonth.getYear(), currentMonth.getMonth(), day).equals(today)) {
+                dayButton.setBackground(Color.CYAN); // 当天日期突出显示
+            } else {
+                dayButton.setBackground(dayOfWeekOfFirstDay >= 5 ? Color.LIGHT_GRAY : Color.WHITE); // 区分周末
+            }
+            dayButton.setOpaque(true);
+            dayButton.setBorderPainted(false);
             dayButton.addActionListener(e -> {
                 LocalDate selectedDate = LocalDate.of(currentMonth.getYear(), currentMonth.getMonth(), finalDay);
-                // 假设AppointmentView构造器接受一个LocalDate参数
                 AppointmentView appointmentView = new AppointmentView(this, appointmentManager, customerManager, selectedDate);
-                appointmentView.setVisible(true); // 显示预约详情视图
+                appointmentView.setVisible(true);
             });
             calendarPanel.add(dayButton);
         }
-        
-
+    
         calendarPanel.revalidate();
         calendarPanel.repaint();
-
+    
         return calendarPanel;
     }
+    
+    
 
     private String getButtonTextForDay(LocalDate date) {
-        // Here, you'd fetch the appointment status counts for the given date
-        // This is a placeholder implementation
+       
         Map<String, Integer> statusCounts = getStatusCountsForDay(date);
 
         String buttonText = "<html>" + date.getDayOfMonth(); // Use HTML for multi-line text
@@ -127,21 +149,59 @@ public class MainPage extends JFrame {
 
     // Placeholder method for getting status counts for a specific day
     private Map<String, Integer> getStatusCountsForDay(LocalDate date) {
-        // This should be replaced with actual logic to fetch data from AppointmentManager
-        return new HashMap<>(); // Empty map as a placeholder
+        
+        return new HashMap<>(); 
     }
+
+    private JButton createDayButton(LocalDate date) {
+        Map<String, Integer> statusCounts = appointmentManager.getStatusCountsForDay(date);
+        JButton button = new JButton();
+        StringBuilder buttonText = new StringBuilder("<html><b>" + date.getDayOfMonth() + "</b>");
+    
+        
+        if (statusCounts.getOrDefault("cancelled", 0) > 0) {
+            buttonText.append("<br><font color='#FFA07A' size='2'>").append(statusCounts.get("cancelled")).append(" C</font>");
+        }
+        if (statusCounts.getOrDefault("completed", 0) > 0) {
+            buttonText.append("<br><font color='#90EE90' size='2'>").append(statusCounts.get("completed")).append(" D</font>");
+        }
+        if (statusCounts.getOrDefault("pending", 0) > 0) {
+            buttonText.append("<br><font color='#ADD8E6' size='2'>").append(statusCounts.get("pending")).append(" P</font>");
+        }
+        buttonText.append("</html>");
+        button.setText(buttonText.toString());
+    
+        button.addActionListener(e -> {
+            AppointmentView appointmentView = new AppointmentView(this, appointmentManager, customerManager, date);
+            appointmentView.setVisible(true);
+        });
+    
+        return button;
+    }
+    
 
     private JPanel createSidePanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        panel.add(viewAppointmentsButton);
-        panel.add(viewTodoListButton);
-        panel.add(viewRemindersButton);
-        panel.add(viewCustomerButton);
-
+    
+        
+        JButton[] buttons = {viewAppointmentsButton, viewTodoListButton, viewRemindersButton, viewCustomerButton};
+        for (JButton button : buttons) {
+            button.setFont(new Font("Arial", Font.BOLD, 14)); 
+            button.setBackground(Color.LIGHT_GRAY); 
+            button.setForeground(Color.WHITE); 
+            button.setOpaque(true);
+           
+            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, button.getMinimumSize().height)); 
+            panel.add(button);
+        }
+    
+        
+        panel.add(Box.createVerticalStrut(10)); 
+    
         return panel;
     }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

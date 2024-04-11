@@ -2,7 +2,9 @@ package Appointment;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AppointmentManager {
@@ -45,6 +47,20 @@ public class AppointmentManager {
                 .filter(appointment -> appointment.getStatus() == status)
                 .collect(Collectors.toList());
     }
+
+    // 在AppointmentManager类中添加此方法
+public Map<String, Integer> getStatusCountsForDay(LocalDate date) {
+    Map<String, Integer> statusCounts = new HashMap<>();
+    List<Appointment> appointmentsForDay = getAppointmentsForDay(date);
+
+    for (Appointment appointment : appointmentsForDay) {
+        String statusKey = appointment.getStatus().toString().toLowerCase();
+        statusCounts.put(statusKey, statusCounts.getOrDefault(statusKey, 0) + 1);
+    }
+
+    return statusCounts;
+}
+
 
     //get all appointments by date
     public List<Appointment> getAppointmentsForDate(LocalDate date) {
