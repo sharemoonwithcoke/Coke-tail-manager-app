@@ -65,6 +65,8 @@ public class RemindersDialog extends JDialog {
         }
     }
 
+    //、、、、、、、、、添加方法中需要选择已有的宠物
+
     private void addReminder() {
         // 假设ReminderManager有方法添加提醒
         reminderManager.addGeneralReminder(pets.get(0), LocalDate.now().plusDays(7), "Reminder", 7);

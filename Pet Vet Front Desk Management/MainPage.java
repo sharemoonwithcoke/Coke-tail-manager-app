@@ -57,9 +57,16 @@ public class MainPage extends JFrame {
         });
 
         viewRemindersButton.addActionListener(e -> {
-            RemindersDialog remindersDialog = new RemindersDialog(this, reminderManager, null); // 确保这里正确传递ReminderManager实例
-            remindersDialog.setVisible(true);
+            try {
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+                RemindersDialog remindersDialog = new RemindersDialog(frame, reminderManager, null);
+                remindersDialog.setVisible(true);
+            } catch (Exception ex) {
+                ex.printStackTrace(); // 打印异常堆栈，便于调试
+            }
         });
+        
+        
 
         viewCustomerButton.addActionListener(e -> {
             CustomerinfoView customerView = new CustomerinfoView(this, customerManager); // 确保这里正确传递CustomerManager实例
