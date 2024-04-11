@@ -59,13 +59,12 @@ public class MainPage extends JFrame {
         viewRemindersButton.addActionListener(e -> {
             try {
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-                RemindersDialog remindersDialog = new RemindersDialog(frame, reminderManager, null);
+                RemindersDialog remindersDialog = new RemindersDialog(frame, reminderManager, customerManager);
                 remindersDialog.setVisible(true);
             } catch (Exception ex) {
                 ex.printStackTrace(); // 打印异常堆栈，便于调试
             }
         });
-        
         
 
         viewCustomerButton.addActionListener(e -> {
@@ -148,13 +147,14 @@ public class MainPage extends JFrame {
         SwingUtilities.invokeLater(() -> {
             AppointmentManager appointmentManager = new AppointmentManager();
             ToDoList toDoList = new ToDoList();
-            ReminderManager reminderManager = new ReminderManager();
-            CustomerManager customerManager = new CustomerManager(); // 初始化CustomerManager
+            CustomerManager customerManager = new CustomerManager(); // 先初始化CustomerManager
+            ReminderManager reminderManager = new ReminderManager(customerManager); // 使用CustomerManager初始化ReminderManager
     
             MainPage mainPage = new MainPage(appointmentManager, toDoList, reminderManager, customerManager);
             mainPage.setVisible(true);
         });
     }
+    
     
     }
     
