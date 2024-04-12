@@ -45,13 +45,13 @@ public class RemindersDialog extends JDialog {
         JScrollPane scrollPane = new JScrollPane(reminderList);
         add(scrollPane, BorderLayout.CENTER);
 
-        JButton viewDetailButton = new JButton("View");
+      
         JButton dismissButton = new JButton("Dismiss");
         JButton addReminderButton = new JButton("Add");
         // Removed the Add Reminder button, as it was not fully implemented
         // and its functionality was not specified for all pets
 
-        viewDetailButton.addActionListener(e -> viewReminderDetail());
+     
         dismissButton.addActionListener(e -> removeReminder());
         addReminderButton.addActionListener(e -> {
             System.out.println("Add Reminder Button Clicked");
@@ -60,7 +60,7 @@ public class RemindersDialog extends JDialog {
         
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(viewDetailButton);
+      
         buttonPanel.add(dismissButton);
         buttonPanel.add(addReminderButton);
 
@@ -77,24 +77,7 @@ public class RemindersDialog extends JDialog {
 
     /////
 
-    private void viewReminderDetail() {
-        int selectedIndex = reminderList.getSelectedIndex();
-        if (selectedIndex != -1) {
-            Reminder selectedReminder = reminders.get(selectedIndex);
-            Pet associatedPet = findPetForReminder(selectedReminder); // 需要实现这个方法
-            if (associatedPet != null) {
-                // 这里假设每个Pet都可以获取到其Owner的信息
-                Person owner = findOwnerForPet(associatedPet); // 同样，需要实现这个方法
-                if (owner != null) {
-                    new ReminderDetailView((JFrame)this.getParent(), selectedReminder, associatedPet, owner).setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Unable to find the owner for the selected pet.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Unable to find the pet for the selected reminder.");
-            }
-        }
-    }
+  
     
 
     private Person findOwnerForPet(Pet associatedPet) {
