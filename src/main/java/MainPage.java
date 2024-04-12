@@ -105,7 +105,7 @@ public class MainPage extends JFrame {
             JButton dayButton = new JButton(Integer.toString(day));
             dayButton.setFont(new Font("Arial", Font.PLAIN, 11));
             if (LocalDate.of(currentMonth.getYear(), currentMonth.getMonth(), day).equals(today)) {
-                dayButton.setBackground(Color.RED);
+                dayButton.setBackground(Color.pink);
             } else {
                 dayButton.setBackground(dayOfWeekOfFirstDay >= 5 ? Color.LIGHT_GRAY : Color.WHITE); // Set different
                                                                                                     // background colors
